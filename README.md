@@ -9,9 +9,9 @@ CA6117 AI for Healthcare: a clinician-supervised patient-message workbench with 
 - **Demo:** the original deterministic scenarios, entirely in the browser. No API account or backend is required.
 - **Live AI:** a protected backend retrieves relevant fictional sources with **BM25**, calls **DeepSeek**, validates citation IDs and exact quotes, then returns an editable draft for human review. You can edit the fictional message before running it.
 
-The frontend stays on GitHub Pages. Live AI needs the deployed API URL, the project's demo access code and an active DeepSeek API balance. It does **not** require ChatGPT or a local server once the backend is deployed. The demo access code is different from the provider API key; the provider key stays on the server.
+The frontend stays on GitHub Pages; the production backend is `https://safetriage-api.vercel.app`. Live AI needs the deployed API URL, the project's demo access code and an active DeepSeek API balance. It does **not** require ChatGPT or a local server once the backend is deployed. The demo access code is different from the provider API key; the provider key stays on the server.
 
-Open **Live AI / connection settings**, enter the backend URL and demo access code, then select a case and click **Run triage**. Use the **Evidence** tab and source buttons to inspect retrieval results and the exact text cited. Live and Demo keep separate browser histories. Reset demo clears the current mode's cases and activity.
+Open **Live AI / connection settings** and enter the demo access code. The production backend URL is prefilled; select a case and click **Run triage**. Use the **Evidence** tab and source buttons to inspect retrieval results and the exact text cited. Live and Demo keep separate browser histories. Reset demo clears the current mode's cases and activity.
 
 ## Architecture
 
@@ -47,7 +47,7 @@ The rule stops depend on message content, not scenario labels. A model cannot ov
 
 ## Local development
 
-Requires Node.js 22.13+; development verified with Node.js 24.
+Requires Node.js 24. The deployment runtime is pinned to this major version.
 
 ```sh
 npm ci

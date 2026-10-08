@@ -130,3 +130,7 @@ body {
 .retrieval-details button{display:flex;justify-content:space-between;width:100%;padding-top:7px;cursor:pointer;color:#2f6872}
 @media(max-width:1100px){.topbar-right .clinic-name{display:none}}
 @media(max-width:640px){.topbar{height:auto;min-height:64px;flex-wrap:wrap;gap:8px;padding-top:12px;padding-bottom:12px}.topbar-right{gap:8px}.topbar-right .demo-label{display:none}.engine-controls button{font-size:10px;padding:5px 7px}.workspace{min-height:0}.engine-dialog{max-width:calc(100vw - 30px)}}
+.backend-settings{font-size:12px;color:#627883}
+.backend-settings summary{cursor:pointer;margin-bottom:8px}
+.backend-settings[open]{padding-bottom:8px}
+.followup-form{display:grid;gap:12px;margin-top:14px}

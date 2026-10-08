@@ -21,7 +21,8 @@
       "@/*": [
         "./*"
       ]
-    }
+    },
+    "rewriteRelativeImportExtensions": true
   },
   "include": [
     "src",

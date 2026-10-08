@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import type { EngineSettings } from '../../shared/triage';
 
 export function initialSettings(): EngineSettings {
-  const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
+  const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://safetriage-api.vercel.app';
   let settings: EngineSettings = { mode: apiUrl ? 'live' : 'demo', apiUrl, accessCode: '' };
   try {
     const saved = JSON.parse(localStorage.getItem('safetriage-engine-v1') || 'null');
@@ -23,7 +23,7 @@ export function saveSettings(settings: EngineSettings) {
   } catch { /* In-memory use remains available. */ }
 }
 export function EngineControls({ settings, onChange, busy }: { settings: EngineSettings; onChange: (s: EngineSettings) => void; busy: boolean }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(settings.mode==='live'&&!settings.accessCode);
   const [url, setUrl] = useState(settings.apiUrl);
   const [code, setCode] = useState(settings.accessCode);
   const [status, setStatus] = useState('');
@@ -59,7 +59,7 @@ export function EngineControls({ settings, onChange, busy }: { settings: EngineS
     <button className={settings.mode === 'live' ? 'selected' : ''} disabled={busy} onClick={() => settings.apiUrl && settings.accessCode ? onChange({ ...settings, mode: 'live' }) : show()}><Radio size={13}/>Live AI</button>
     <button aria-label="AI connection settings" disabled={busy} onClick={show}><Settings2 size={15}/></button>
   </div><Dialog open={open} onOpenChange={setOpen}><DialogContent className="engine-dialog"><DialogHeader><DialogTitle>Connect Live AI</DialogTitle><DialogDescription>Use DeepSeek with the project's fictional knowledge library. Drafts still require human review.</DialogDescription></DialogHeader>
-    <label className="engine-field">Backend URL<Input aria-label="Backend URL" placeholder="https://your-project.vercel.app" value={url} onChange={e => setUrl(e.target.value)}/></label>
+    <details className="backend-settings"><summary>Backend connection</summary><label className="engine-field">Backend URL<Input aria-label="Backend URL" placeholder="https://your-project.vercel.app" value={url} onChange={e => setUrl(e.target.value)}/></label></details>
     <label className="engine-field">Demo access code<Input aria-label="Demo access code" type="password" autoComplete="off" value={code} onChange={e => setCode(e.target.value)}/><small>Provided by the project owner. Saved for this browser tab's session. Do not enter a provider API key.</small></label>
     <p className="engine-note">Demo runs fixed scenarios. Live AI retrieves relevant sources and asks DeepSeek to generate a new draft. Only fictional messages belong in this teaching prototype.</p>
     {status && <p className="engine-status" role="status">{status}</p>}

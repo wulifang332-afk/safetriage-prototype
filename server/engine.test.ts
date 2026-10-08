@@ -102,3 +102,8 @@ test('DeepSeek balance, authentication, and length failures remain explicit erro
   const fake: typeof fetch = async () => Response.json({ choices: [{ finish_reason: 'length', message: { content: '{' } }] });
   await assert.rejects(() => deepseek(config, fake)('JSON', 'input', {}), TriageError);
 });
+
+test('unrequested clinical safety-netting is withheld from an administrative draft', async () => {
+  const unsafe: Generator = async (s,u,schema) => { const result=await good(s,u,schema);const value=JSON.parse(result.text);value.draft+=' If symptoms worsen, seek urgent care.';return {...result,text:JSON.stringify(value)} };
+  await assert.rejects(()=>triage(request,unsafe),(e:unknown)=>e instanceof TriageError&&e.code==='UNSAFE_MODEL_OUTPUT');
+});
