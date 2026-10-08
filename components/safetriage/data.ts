@@ -1,10 +1,11 @@
+import type { TriageResult } from '../../shared/triage';
 export type CaseStatus = 'new' | 'running' | 'paused' | 'review' | 'blocked' | 'awaiting' | 'sent' | 'rejected' | 'escalated';
 export type Scenario = 'refill' | 'urgent' | 'missing' | 'appointment' | 'injection' | 'unavailable';
 export type Event = { id: string; at: string; caseId: string; actor: string; action: string; detail: string };
 export type PatientCase = {
- id: string; name: string; initials: string; age: number; sex: string; time: string; subject: string; message: string; scenario: Scenario; urgency: string; category: string; status: CaseStatus; summary: string; medication: string; allergies: string; condition: string; appointment: string; draft: string; sources: string[]; steps: string[]; followUp?: string; reviewerNote?: string;
+ id: string; name: string; initials: string; age: number; sex: string; time: string; subject: string; message: string; scenario: Scenario; urgency: string; category: string; status: CaseStatus; summary: string; medication: string; allergies: string; condition: string; appointment: string; draft: string; sources: string[]; steps: string[]; followUp?: string; reviewerNote?: string; ai?: TriageResult; runError?: string;
 };
-export type Source = { id: string; title: string; kind: string; version: string; excerpt: string; applies: string };
+export type Source = { id: string; title: string; kind: string; version: string; excerpt: string; applies: string; quote?: string; score?: number };
 export const sources: Source[] = [
  {id:'RX-01',title:'Prescription refill policy',kind:'Simulated clinic policy',version:'v1.2 · 01 Oct 2026',excerpt:'Refill requests must be reviewed by the prescribing clinician. Staff may acknowledge receipt and verify the listed medication and remaining supply. Do not promise prescription approval or change the recorded dose.',applies:'A refill request can be acknowledged, but prescription authorization stays with the clinician.'},
  {id:'PT-1042-RX',title:'Current medication record',kind:'Fictional patient record',version:'PT-1042 · 28 Sep 2026',excerpt:'Olivia Tan. Recorded medication: amlodipine 5 mg once daily. Last review: 28 September 2026. Follow-up booked: 14 October 2026, 10:30. This record is synthetic and is not prescribing advice.',applies:'Supports the medication name and follow-up date in the draft.'},
@@ -29,6 +30,8 @@ export const initialEvents: Event[] = [
 ];
 export const statusLabels: Record<CaseStatus,string> = {new:'Ready to triage',running:'Analysing',paused:'Paused',review:'Needs review',blocked:'Safety stop',awaiting:'Awaiting patient',sent:'Reply approved',rejected:'Draft rejected',escalated:'Escalated'};
 export function sourceFor(id:string, patient?:PatientCase):Source|undefined {
+ const retrieved=patient?.ai?.sources.find(s=>s.id===id)||patient?.ai?.retrieved.find(s=>s.id===id);
+ if(retrieved)return retrieved;
  if(id==='APPT-01'&&patient?.scenario==='appointment')return {...sources.find(s=>s.id===id)!,excerpt:'Simulated appointment record: Ethan Wong, PT-1120. Follow-up visit: 12 October 2026, 14:00, Harbour Primary Care. Clinic policy allows staff to confirm a recorded appointment; rescheduling requires a separate request.'};
  return sources.find(s=>s.id===id);
 }

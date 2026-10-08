@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "node scripts/prepare-api-site.mjs",
+  "outputDirectory": "api-public",
+  "functions": {
+    "api/triage.ts": { "maxDuration": 60 },
+    "api/health.ts": { "maxDuration": 10 }
+  }
+}

@@ -1,0 +1,3 @@
+import { mkdirSync, writeFileSync } from 'node:fs';
+mkdirSync('api-public', { recursive: true });
+writeFileSync('api-public/index.html', '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SafeTriage API</title><style>body{font:16px/1.7 system-ui;max-width:640px;margin:12vh auto;padding:24px;color:#183543}a{color:#087e86}</style><h1>SafeTriage API</h1><p>This backend provides protected DeepSeek generation and scoped knowledge retrieval for the fictional course prototype.</p><p><a href="https://wulifang332-afk.github.io/safetriage-prototype/">Open the interactive prototype →</a></p><p>Only fictional data is supported. No patient messages are sent.</p></html>');

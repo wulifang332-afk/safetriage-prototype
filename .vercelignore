@@ -1,0 +1,8 @@
+.env*
+!.env.example
+node_modules
+.npm-cache
+.git
+docs
+work
+*.log

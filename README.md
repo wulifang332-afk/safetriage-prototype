@@ -1,61 +1,110 @@
-# SafeTriage — interactive prototype
+# SafeTriage — LLM + RAG teaching prototype
 
-**[打开交互原型 · Open the live demo](https://wulifang332-afk.github.io/safetriage-prototype/)**
+**[打开交互原型 · Open the prototype](https://wulifang332-afk.github.io/safetriage-prototype/)**
 
-CA6117 AI for Healthcare: a clinician-supervised patient-message triage workbench.
+CA6117 AI for Healthcare: a clinician-supervised patient-message workbench with six fictional cases.
 
-## 直接访问
+## Two modes
 
-点击上面的链接即可使用。无需 ChatGPT、GPT 账号、API 密钥、安装软件或启动本地服务器；手机和电脑浏览器均可打开。GitHub 仓库内点击右侧 **About → Website** 也可进入。
+- **Demo:** the original deterministic scenarios, entirely in the browser. No API account or backend is required.
+- **Live AI:** a protected backend retrieves relevant fictional sources with **BM25**, calls **DeepSeek**, validates citation IDs and exact quotes, then returns an editable draft for human review. You can edit the fictional message before running it.
 
-本站由 GitHub Pages 托管静态文件，没有一周试用期或会话到期限制。保留公开仓库及 Pages 发布设置即可继续访问。
+The frontend stays on GitHub Pages. Live AI needs the deployed API URL, the project's demo access code and an active DeepSeek API balance. It does **not** require ChatGPT or a local server once the backend is deployed. The demo access code is different from the provider API key; the provider key stays on the server.
 
-## Try the demo
+Open **Live AI / connection settings**, enter the backend URL and demo access code, then select a case and click **Run triage**. Use the **Evidence** tab and source buttons to inspect retrieval results and the exact text cited. Live and Demo keep separate browser histories. Reset demo clears the current mode's cases and activity.
 
-1. **Olivia Tan — refill:** inspect the draft and its source references, tick the review checkbox, then approve the simulated reply.
-2. **Daniel Lim — urgent symptoms:** run triage and record an escalation with a handoff note.
-3. **Aisha Rahman — missing information:** approve a clarification, add the demo patient response and resume triage.
-4. **Ethan Wong — appointment:** run triage and review the suggested appointment reply.
-5. **Grace Lee — prompt injection:** run triage to see a blocked request and security escalation.
-6. **Marcus Teo — unavailable source:** run triage to see a safety stop and manual handoff.
+## Architecture
 
-Explore **Review queue**, **Escalations**, **Audit log** and **Knowledge base**. Use **Reset demo** in the top-right corner to restart all scenarios. The audit log can be downloaded as JSON.
+```mermaid
+flowchart LR
+  A[GitHub Pages / React] -->|HTTPS + demo access code| B[Vercel API]
+  B --> C[Validate case and safety rules]
+  C -->|Allowed| D[Patient scope filter + BM25 top-k]
+  D --> E[DeepSeek JSON generation]
+  E --> F[Validate output and source quotes]
+  F --> G[Editable draft + evidence + audit trace]
+  G --> A
+  C -->|Safety concern| H[Staff handoff / no LLM call]
+  D -->|Missing guidance| H
+```
 
-## Scope and storage
+The backend resolves the case from its own fictional fixture set. Clients cannot supply a patient record, system prompt, model name or arbitrary retrieval corpus. Other patients' records are excluded **before** retrieval scoring. The generation prompt receives only the selected patient's name/ID, the message/follow-up, and the retrieved excerpts.
 
-All patients, records, policies, responses and workflow events are fictional teaching fixtures. “Run triage” plays deterministic scenarios; no live AI model, retrieval service, EHR, patient messaging or clinical decision service is connected. Replies are never sent to patients. This prototype is not for clinical use.
+RAG here uses lexical BM25 ranking, with small synonym normalization, across short versioned source documents. It is a working retrieval-augmented generation baseline, **not** an embedding/vector database implementation. Each short document is one retrieval chunk. Updating the source library and redeploying updates the index. For larger or multilingual corpora, evaluate semantic or hybrid retrieval separately.
 
-Progress is saved in this browser's local storage. It is not shared with other users, devices or browsers. No account is required. Clearing browser site data or clicking Reset demo removes that local progress.
+## Workflow cases
 
-The interface and runtime libraries are bundled in this repository; no CDN, GPT service or private hosting environment is required at runtime. Initial page loading requires access to GitHub Pages.
+| Fictional case | Workflow |
+| --- | --- |
+| Olivia Tan | Refill acknowledgement; clinician authorization still required |
+| Daniel Lim | Configured urgent-symptom rule stops routine generation |
+| Aisha Rahman | Clarification → patient follow-up → resume generation |
+| Ethan Wong | Appointment confirmation using scoped record and policy |
+| Grace Lee | Cross-patient/prompt override request blocked before retrieval |
+| Marcus Teo | Missing procedure guidance → no unsupported generated reply |
 
-## Run or update locally
+The rule stops depend on message content, not scenario labels. A model cannot override a prior rule stop. It can additionally request staff review. Every accepted draft remains subject to a review checkbox and explicit human confirmation. Sending and escalation are local demonstrations; no real message is transmitted to a patient or care team.
 
-Requires Node.js 22.13+ (or a current LTS version).
+## Local development
+
+Requires Node.js 22.13+; development verified with Node.js 24.
 
 ```sh
 npm ci
+cp .env.example .env.local
+# Fill DEEPSEEK_API_KEY and a separate ACCESS_CODE in .env.local.
+npm run api:dev
+# In another terminal:
 npm run dev
 ```
 
-Build the exact static files served by GitHub Pages:
+Use `http://127.0.0.1:8787` as the backend URL in the connection dialog, and enter your local `ACCESS_CODE`. The local backend allows the standard 5173/4173 preview origins. Keep all messages fictional.
 
 ```sh
+npm test
 npm run build
 npm run preview
 ```
 
-Vite outputs the production site to `docs/`. GitHub Pages publishes **main → /docs**. After changing source files, run the build and commit both the source and regenerated `docs/` files. No CI credentials or API keys are needed.
+`npm run build` checks frontend and backend types, then builds the static frontend into `docs/`. GitHub Pages publishes **main → /docs**. Rebuild and commit `docs/` after changing frontend code. Do not put a secret in any `VITE_` variable; Vite embeds those variables into public assets.
 
-If the repository is renamed, update the `base` path in `vite.config.ts`, rebuild and update the demo links in this README.
+## Deploy the backend
 
-## Project layout
+The repository includes `api/triage.ts`, `api/health.ts` and `vercel.json`. Vercel serves the API and a small status landing page; GitHub Pages remains the interactive frontend.
 
-- `components/safetriage/` — workbench, fictional cases, dialogs and local state
-- `components/ui/`, `hooks/`, `lib/` — shared UI components and utilities
-- `app/globals.css` — responsive styling
-- `src/main.tsx`, `index.html` — standalone browser entry
-- `docs/` — committed production build served by GitHub Pages
-- `vendor/shadcn-tailwind-4.13.0.LICENSE.md` — attribution for the bundled shadcn styles
+1. Create/link a Vercel project from this repository.
+2. Set production environment variables using Vercel's server-side settings:
+   - `DEEPSEEK_API_KEY` — sensitive server secret.
+   - `ACCESS_CODE` — a separate private demo access code.
+   - `LLM_MODEL` — `deepseek-flash` (configurable server-side).
+   - `ALLOWED_ORIGIN` — `https://wulifang332-afk.github.io`.
+3. Deploy the production backend. `GET /api/health` reports configuration state; it does not verify provider credit or reveal credentials.
+4. Set the frontend's public `VITE_API_BASE_URL` to the deployed origin, run `npm run build`, then commit and push the generated `docs/` files. Alternatively enter the URL in connection settings.
+5. Check a real model call after confirming the DeepSeek account has available credit.
 
-Third-party packages retain their respective licenses. See the dependency lockfile and vendored license notice.
+Protect the demo access code when sharing the prototype. The server includes a small **per-instance** 12-request/minute limiter; it is not a distributed quota or guaranteed spend cap. Configure provider/platform spend controls for any broader deployment.
+
+## Validation and limits
+
+`npm test` exercises retrieval relevance, patient scoping, altered message input, rule stops, insufficient evidence, output parsing, hallucinated citations, exact-quote checks, API access, CORS and DeepSeek failure handling. Provider unit tests use a clearly labeled test generator; they are not evidence of live-model accuracy.
+
+Actual model failures (invalid key, unavailable balance, timeout, malformed JSON, inconsistent citations) are surfaced explicitly and leave the case paused with no accepted draft. Live mode never silently substitutes a scripted answer.
+
+Citation checks verify source identity and exact quoted substrings. They **do not** prove that a model's claim follows from the quote, detect every hallucination, or establish clinical safety. The small English rule set is an illustrative safeguard, not validated medical triage. No patient authentication, real EHR integration, durable clinical audit store, clinical evaluation, or production compliance is provided.
+
+All records, policies and messages are fictional teaching material. Do not use this project for clinical decisions or real patient data. Browser progress and audit records are local and editable; they are not an authoritative medical audit trail.
+
+## Source map
+
+- `components/safetriage/` — workbench, separate Demo/Live state, connection UI and evidence views
+- `shared/triage.ts` — request/result contracts
+- `server/knowledge.ts`, `server/rag.ts` — scoped corpus and BM25 retrieval
+- `server/engine.ts` — input rules, grounded prompt, output/citation validation
+- `server/provider.ts` — bounded DeepSeek request; API key stays server-side
+- `server/http.ts`, `api/` — authenticated HTTP endpoints and Vercel entrypoints
+- `server/engine.test.ts` — meaningful backend tests
+- `docs/` — public frontend build
+
+Third-party dependencies retain their licenses; the bundled shadcn styles include their license in `vendor/`.
+
+API implementation follows the [DeepSeek Chat Completions documentation](https://api-docs.deepseek.com/api/create-chat-completion/) and [Vercel Node.js Functions documentation](https://vercel.com/docs/functions/runtimes/node-js).

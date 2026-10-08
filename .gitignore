@@ -5,3 +5,8 @@ node_modules/
 *.local
 .npm-cache/
 *.log
+!.env.example
+.vercel/
+.dev.vars
+.wrangler/
+api-public/
