@@ -4,12 +4,15 @@ export type ServerConfig = {
   ALLOWED_ORIGIN?: string; ALLOW_LOCAL_DEV?: string;
 };
 export function deepseek(config: ServerConfig, fetcher: typeof fetch = fetch): Generator {
+  const deadline = Date.now() + 45000;
   return async (system, user) => {
     if (!config.DEEPSEEK_API_KEY) throw new TriageError('SERVICE_NOT_CONFIGURED', 'The server needs a DeepSeek API key.', 503);
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) throw new TriageError('MODEL_UNAVAILABLE', 'The generation time limit was reached. Please retry.', 504);
     let response: Response;
     try {
       response = await fetcher('https://api.deepseek.com/chat/completions', {
-        method: 'POST', signal: AbortSignal.timeout(45000),
+        method: 'POST', signal: AbortSignal.timeout(remaining),
         headers: { Authorization: `Bearer ${config.DEEPSEEK_API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: config.LLM_MODEL || 'deepseek-flash', max_tokens: 1400,
           temperature: 0.1, thinking: { type: 'disabled' }, response_format: { type: 'json_object' },

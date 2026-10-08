@@ -15,7 +15,7 @@ const results = [];
 for (const [caseId, message, expected] of cases) {
   const response = await fetch(`${base}/api/triage`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${code}` }, body: JSON.stringify({ caseId, message }), signal: AbortSignal.timeout(60000) });
   const body = await response.json();
-  results.push({ caseId, expected, status: response.status, pass: response.ok && body.action === expected, action: body.action, provenance: body.provenance, model: body.model, sources: body.sources?.map(s => s.id), elapsedMs: body.elapsedMs, error: body.error });
+  results.push({ caseId, expected, status: response.status, pass: response.ok && body.action === expected, action: body.action, provenance: body.provenance, model: body.model, generationAttempts: body.generationAttempts, sources: body.sources?.map(s => s.id), elapsedMs: body.elapsedMs, error: body.error });
   if (['MODEL_BALANCE_EMPTY', 'MODEL_AUTH_FAILED'].includes(body.error?.code)) break;
 }
 const report = { at: new Date().toISOString(), backend: base, note: 'Workflow smoke checks only; not clinical validation or a faithfulness evaluation.', results };

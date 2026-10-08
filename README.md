@@ -88,7 +88,7 @@ Protect the demo access code when sharing the prototype. The server includes a s
 
 `npm test` exercises retrieval relevance, patient scoping, altered message input, rule stops, insufficient evidence, output parsing, hallucinated citations, exact-quote checks, API access, CORS and DeepSeek failure handling. Provider unit tests use a clearly labeled test generator; they are not evidence of live-model accuracy.
 
-Actual model failures (invalid key, unavailable balance, timeout, malformed JSON, inconsistent citations) are surfaced explicitly and leave the case paused with no accepted draft. Live mode never silently substitutes a scripted answer.
+Actual model failures (invalid key, unavailable balance, timeout, malformed JSON, inconsistent citations) are surfaced explicitly and leave the case paused with no accepted draft. One bounded regeneration is allowed for malformed JSON, citation mismatch, or a prohibited output phrase; both attempts share a 45-second provider budget. The retry is recorded, and the second result must pass the same validation. Live mode never silently substitutes a scripted answer.
 
 Citation checks verify source identity and exact quoted substrings. They **do not** prove that a model's claim follows from the quote, detect every hallucination, or establish clinical safety. The small English rule set is an illustrative safeguard, not validated medical triage. No patient authentication, real EHR integration, durable clinical audit store, clinical evaluation, or production compliance is provided.
 

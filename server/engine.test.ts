@@ -107,3 +107,19 @@ test('unrequested clinical safety-netting is withheld from an administrative dra
   const unsafe: Generator = async (s,u,schema) => { const result=await good(s,u,schema);const value=JSON.parse(result.text);value.draft+=' If symptoms worsen, seek urgent care.';return {...result,text:JSON.stringify(value)} };
   await assert.rejects(()=>triage(request,unsafe),(e:unknown)=>e instanceof TriageError&&e.code==='UNSAFE_MODEL_OUTPUT');
 });
+
+test('one failed citation can be repaired, and the retry is recorded', async () => {
+  let attempts=0;
+  const repair: Generator = async (s,u,schema) => { const result=await good(s,u,schema);attempts++;if(attempts===1){const value=JSON.parse(result.text);value.citations[0].quote='Not a real quote from the source';result.text=JSON.stringify(value)}return result };
+  const result=await triage(request,repair);assert.equal(attempts,2);assert.equal(result.generationAttempts,2);assert(result.trace.some(t=>t.action==='Output validation retry'));
+});
+test('validation failures cannot trigger unbounded model retries', async () => {
+  let attempts=0;
+  await assert.rejects(()=>triage(request,async()=>{attempts++;return {model:'invalid',text:'bad json'}}),TriageError);assert.equal(attempts,2);
+});
+
+test('a prohibited first draft is discarded, and a safe second draft still needs citation checks', async () => {
+  let attempts=0;
+  const repair: Generator = async (s,u,schema) => { const result=await good(s,u,schema);attempts++;if(attempts===1){const value=JSON.parse(result.text);value.draft+=' Seek urgent care.';result.text=JSON.stringify(value)}return result };
+  const result=await triage(request,repair);assert.equal(attempts,2);assert.equal(result.generationAttempts,2);assert(!result.draft.includes('Seek urgent care'));assert(result.sources.length>0);
+});

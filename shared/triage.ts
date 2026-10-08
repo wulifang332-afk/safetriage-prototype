@@ -12,6 +12,6 @@ export type TriageResult = {
   retrieved: RetrievedSource[]; steps: string[]; trace: TraceEntry[];
   provenance: 'llm' | 'guardrail'; model: string | null;
   retrieval: { method: 'BM25'; query: string; eligibleDocuments: number; elapsedMs: number };
-  elapsedMs: number; inputTokens?: number; outputTokens?: number;
+  elapsedMs: number; generationAttempts?: number; inputTokens?: number; outputTokens?: number;
 };
 export type EngineSettings = { mode: TriageMode; apiUrl: string; accessCode: string };
