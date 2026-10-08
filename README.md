@@ -43,7 +43,7 @@ RAG here uses lexical BM25 ranking, with small synonym normalization, across sho
 | Grace Lee | Cross-patient/prompt override request blocked before retrieval |
 | Marcus Teo | Missing procedure guidance → no unsupported generated reply |
 
-The rule stops depend on message content, not scenario labels. A model cannot override a prior rule stop. It can additionally request staff review. The inbox shows the patient message and editable draft without a triage-summary card or right-hand panel. Reviewers can directly approve or reject a draft with one click. Source details remain available from the citation buttons, and activity is available in Audit log. Sending and escalation are local demonstrations; no real message is transmitted to a patient or care team.
+The rule stops depend on message content, not scenario labels. A model cannot override a prior rule stop. It can additionally request staff review. The inbox shows the patient message and editable draft without a triage-summary card or right-hand panel. The bottom-right action row is ordered Approve, Reject, Escalate. Approve and Reject execute with one click. The sidebar contains Inbox and Escalations; there are no Review queue, Audit log, or Knowledge base pages in the UI. Source details remain available from the citation buttons. Sending and escalation are local demonstrations; no real message is transmitted to a patient or care team.
 
 ## Local development
 
