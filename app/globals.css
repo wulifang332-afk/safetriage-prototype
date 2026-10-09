@@ -134,3 +134,44 @@ body {
 .backend-settings summary{cursor:pointer;margin-bottom:8px}
 .backend-settings[open]{padding-bottom:8px}
 .followup-form{display:grid;gap:12px;margin-top:14px}
+
+/* Optional workflow evidence stays inside the existing case pane. */
+.workflow-evidence{margin-top:18px;border-top:1px solid #e1e8ed;padding-top:8px}
+.workflow-details>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none;cursor:pointer;padding:10px 0;font-size:12px;color:#526b77}
+.workflow-details>summary::-webkit-details-marker{display:none}
+.workflow-details>summary>span{display:flex;align-items:center;gap:7px}
+.workflow-details>summary:focus-visible{outline:2px solid #087e86;outline-offset:4px;border-radius:3px}
+.workflow-status{font-size:11px;color:#687e89;text-align:right}
+.workflow-details[open]>summary .workflow-status svg{transform:rotate(180deg)}
+.workflow-body{background:#f7fafb;border:1px solid #e3eaee;border-radius:8px;padding:16px;margin-top:4px;font-size:12px;line-height:1.6}
+.workflow-body h4,.record-section h4{font-size:12px;font-weight:600;margin:0 0 8px;color:#284652}
+.workflow-plan{list-style:decimal;padding-left:20px;display:grid;gap:5px;margin-bottom:12px}
+.workflow-note{font-size:11px;color:#637985;line-height:1.6;margin:8px 0 14px}
+.workflow-pending{display:flex;align-items:center;gap:8px;color:#0b7179;font-size:12px;line-height:1.6}
+.run-timeline{list-style:none;padding:0;display:grid;gap:12px;margin:12px 0}
+.run-timeline li{display:flex;align-items:flex-start;gap:9px;min-width:0}
+.run-timeline li>svg{color:#0c8188;flex-shrink:0;margin-top:2px}
+.run-timeline li>div{min-width:0}
+.run-timeline strong{display:block;font-size:12px;font-weight:600;color:#25434f}
+.run-timeline small,.run-source small{display:block;font-size:10px;color:#6a7e89;line-height:1.5;margin-top:3px;overflow-wrap:anywhere}
+.run-timeline p{font-size:11px;line-height:1.65;color:#5b717d;margin-top:3px;white-space:pre-wrap;overflow-wrap:anywhere}
+.record-actions{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-start;margin-top:3px}
+.record-actions button{font-size:11px;color:#426b77;padding:7px 9px;gap:6px}
+.run-record-dialog{width:760px!important;max-width:calc(100vw - 32px)!important;max-height:90dvh;grid-template-rows:auto minmax(0,1fr) auto;gap:16px!important}
+.run-record-scroll{min-height:0;overflow:auto;padding-right:6px;overscroll-behavior:contain;font-size:12px;line-height:1.65}
+.run-selector{display:grid;gap:6px;font-weight:600;margin:0 0 18px}
+.run-selector select{width:100%;min-width:0;padding:9px 10px;border:1px solid #dce4e9;background:#fff;border-radius:6px;font-weight:400;font-size:12px}
+.record-notice{background:#f8f4eb;border:1px solid #eadfc9;border-radius:6px;padding:10px 12px;color:#746144;font-size:11px;line-height:1.6;margin-bottom:14px;overflow-wrap:anywhere}
+.run-metadata{display:grid;gap:7px;margin-bottom:20px}
+.run-metadata>div{display:grid;grid-template-columns:180px minmax(0,1fr);gap:12px}
+.run-metadata dt{color:#6a7f89;font-size:11px}
+.run-metadata dd{margin:0;font-size:11px;overflow-wrap:anywhere}
+.record-section{border-top:1px solid #e2e9ed;padding-top:16px;margin-top:18px}
+.record-section h3{font-size:13px;font-weight:600;color:#23404c;margin-bottom:10px}
+.record-section h4{margin-top:14px}
+.record-text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;line-height:1.75;background:#f7fafb;border-radius:6px;padding:12px;margin-bottom:10px}
+.run-source{border:1px solid #e1e8ed;border-radius:7px;padding:12px;margin:10px 0;overflow-wrap:anywhere}
+.run-source>strong{font-size:12px;font-weight:600}
+.run-source>p{font-size:12px;line-height:1.65;margin-top:10px;white-space:pre-wrap}
+.run-source blockquote{border-left:3px solid #68a5ab;padding-left:10px;margin-top:10px;color:#466574;font-size:11px}
+@media(max-width:640px){.run-record-dialog{padding:18px!important;max-height:92dvh}.run-metadata>div{grid-template-columns:1fr;gap:1px}.run-selector select{font-size:11px}.workflow-details>summary{align-items:flex-start}.run-record-dialog [data-slot=dialog-footer]{flex-direction:row;flex-wrap:wrap;justify-content:flex-end}}

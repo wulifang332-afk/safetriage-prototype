@@ -11,7 +11,7 @@ CA6117 AI for Healthcare: a clinician-supervised patient-message workbench with 
 
 The frontend stays on GitHub Pages; the production backend is `https://safetriage-api.vercel.app`. Live AI needs the deployed API URL, the project's demo access code and an active DeepSeek API balance. It does **not** require ChatGPT or a local server once the backend is deployed. The demo access code is different from the provider API key; the provider key stays on the server.
 
-Open **Live AI / connection settings** and enter the demo access code. The production backend URL is prefilled; select a case and click **Run triage**. Use the **Evidence** tab and source buttons to inspect retrieval results and the exact text cited. Live and Demo keep separate browser histories. Reset demo clears the current mode's cases and activity.
+Open **Live AI / connection settings** and enter the demo access code. The production backend URL is prefilled; select a case and click **Run triage**. Use the citation buttons to inspect source excerpts. Expand **Workflow details** to inspect the execution plan and recorded steps. **View run record** and **Download JSON** expose the input, source versions, original/current draft, timestamps and reviewer decision, including after approval or escalation. Live and Demo keep separate browser histories. Reset demo clears the current mode's cases and activity.
 
 ## Architecture
 
@@ -44,6 +44,14 @@ RAG here uses lexical BM25 ranking, with small synonym normalization, across sho
 | Marcus Teo | Missing procedure guidance → no unsupported generated reply |
 
 The rule stops depend on message content, not scenario labels. A model cannot override a prior rule stop. It can additionally request staff review. The inbox shows the patient message and editable draft without a triage-summary card or right-hand panel. The bottom-right action row is ordered Approve, Reject, Escalate. Approve and Reject execute with one click. The sidebar contains Inbox and Escalations; there are no Review queue, Audit log, or Knowledge base pages in the UI. Source details remain available from the citation buttons. Sending and escalation are local demonstrations; no real message is transmitted to a patient or care team.
+
+## Workflow records
+
+Workflow details starts collapsed and does not add a sidebar page or right panel. During a live request it shows that the backend response is pending; after the response it displays the returned trace. It never animates invented server progress. Demo steps are explicitly scripted.
+
+Every new run captures its original input and optional follow-up, a local run ID, the API request ID when available, returned source excerpts/versions, original draft, current draft, decision, and events. Re-running a case keeps the earlier packet separate. Follow-up inputs are included in the next run. A reload restores saved records; an interrupted run is marked paused, not completed. Reset clears the active mode's cases and run history. Existing pre-update cases are shown as partial historical snapshots, without invented start times or decisions.
+
+JSON export uses an explicit field allowlist and includes no API key, access code or connection settings. Browser event times are UTC; backend steps share the response-receipt time, not individual server execution times. Draft edits are not automatically revalidated. Records remain browser-local, editable and unauthenticated; this is a teaching audit view, not a clinical audit service.
 
 ## Local development
 
@@ -86,7 +94,7 @@ Protect the demo access code when sharing the prototype. The server includes a s
 
 ## Validation and limits
 
-`npm test` exercises retrieval relevance, patient scoping, altered message input, rule stops, insufficient evidence, output parsing, hallucinated citations, exact-quote checks, API access, CORS and DeepSeek failure handling. Provider unit tests use a clearly labeled test generator; they are not evidence of live-model accuracy.
+`npm test` exercises retrieval relevance, patient scoping, altered message input, rule stops, insufficient evidence, output parsing, hallucinated citations, exact-quote checks, API access, CORS and DeepSeek failure handling. Run-record tests cover independent attempts, partial historical snapshots, interruption recovery, edited approvals, and credential-free export. Provider unit tests use a clearly labeled test generator; they are not evidence of live-model accuracy.
 
 Actual model failures (invalid key, unavailable balance, timeout, malformed JSON, inconsistent citations) are surfaced explicitly and leave the case paused with no accepted draft. One bounded regeneration is allowed for malformed JSON, citation mismatch, or a prohibited output phrase; both attempts share a 45-second provider budget. The retry is recorded, and the second result must pass the same validation. Live mode never silently substitutes a scripted answer.
 
